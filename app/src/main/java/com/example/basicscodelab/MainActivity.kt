@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,7 +32,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
-    // 👇 lista más larga para probar rendimiento
     val names = List(1000) { "Hello $it" }
 
     Surface(
@@ -44,9 +44,11 @@ fun MyApp(modifier: Modifier = Modifier) {
 
 @Composable
 fun GreetingList(names: List<String>, modifier: Modifier = Modifier) {
-    var expandedStates by remember { mutableStateOf(List(names.size) { false }) }
+    // 👇 ahora usamos rememberSaveable para que el estado sobreviva
+    var expandedStates by rememberSaveable {
+        mutableStateOf(List(names.size) { false })
+    }
 
-    // LazyColumn se encarga de renderizar solo lo necesario en pantalla
     LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
         itemsIndexed(names) { index, name ->
             GreetingCard(
