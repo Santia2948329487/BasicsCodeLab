@@ -31,7 +31,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
-    val names = List(8) { "Hello $it" }
+    // 👇 lista más larga para probar rendimiento
+    val names = List(1000) { "Hello $it" }
 
     Surface(
         modifier = modifier,
@@ -43,9 +44,9 @@ fun MyApp(modifier: Modifier = Modifier) {
 
 @Composable
 fun GreetingList(names: List<String>, modifier: Modifier = Modifier) {
-    // 🔹 ahora el estado de cada item está aquí
     var expandedStates by remember { mutableStateOf(List(names.size) { false }) }
 
+    // LazyColumn se encarga de renderizar solo lo necesario en pantalla
     LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
         itemsIndexed(names) { index, name ->
             GreetingCard(
