@@ -7,14 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.basicscodelab.ui.theme.BasicsCodeLabTheme
 
 class MainActivity : ComponentActivity() {
@@ -31,49 +31,56 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
+    val names = List(8) { "Hello $it" } // Hello 0, Hello 1...
+
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.background
     ) {
-        // Usamos un solo Greeting por ahora (luego convertimos a lista)
-        Greeting(name = "Android")
+        GreetingList(names = names)
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    // estado local que controla si la tarjeta está "expandida"
-    var isExpanded by remember { mutableStateOf(false) }
+fun GreetingList(names: List<String>, modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
+        items(names) { name ->
+            GreetingCard(name = name)
+        }
+    }
+}
 
-    // animamos la separación (la tarjeta "crece" hacia abajo cuando isExpanded = true)
-    val extraSpace by animateDpAsState(targetValue = if (isExpanded) 22.dp else 0.dp)
+@Composable
+fun GreetingCard(name: String, modifier: Modifier = Modifier) {
+    var expanded by remember { mutableStateOf(false) }
+
+    // 🎯 animamos el padding inferior cuando se expande
+    val extraPadding by animateDpAsState(
+        targetValue = if (expanded) 48.dp else 0.dp, label = ""
+    )
 
     Surface(
         color = MaterialTheme.colorScheme.primary,
-        // animateContentSize suaviza cualquier cambio en el tamaño del contenido
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
-            .animateContentSize()
+            .animateContentSize() // importante para animar suavemente
     ) {
         Row(
             modifier = Modifier
-                .padding(24.dp)
+                .padding(18.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = "Hello", fontSize = 16.sp)
-                Text(text = name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(
+                text = name,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(bottom = extraPadding) // 👈 aquí se nota la expansión
+            )
 
-                // Aquí NO mostramos texto extra; solo agregamos espacio que se anima.
-                Spacer(modifier = Modifier.height(extraSpace))
-            }
-
-            ElevatedButton(
-                onClick = { isExpanded = !isExpanded } // alterna el estado
-            ) {
-                Text(if (isExpanded) "Show less" else "Show more")
+            ElevatedButton(onClick = { expanded = !expanded }) {
+                Text(if (expanded) "Show less" else "Show more")
             }
         }
     }
@@ -81,12 +88,8 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun GreetingListPreview() {
     BasicsCodeLabTheme {
-        Column {
-            Greeting("World")
-            Spacer(modifier = Modifier.height(8.dp))
-            Greeting("Compose")
-        }
+        MyApp()
     }
 }
