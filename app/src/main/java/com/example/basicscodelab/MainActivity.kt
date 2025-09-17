@@ -8,7 +8,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
-    val names = List(8) { "Hello $it" } // Hello 0, Hello 1...
+    val names = List(8) { "Hello $it" }
 
     Surface(
         modifier = modifier,
@@ -43,18 +43,31 @@ fun MyApp(modifier: Modifier = Modifier) {
 
 @Composable
 fun GreetingList(names: List<String>, modifier: Modifier = Modifier) {
+    // 🔹 ahora el estado de cada item está aquí
+    var expandedStates by remember { mutableStateOf(List(names.size) { false }) }
+
     LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-        items(names) { name ->
-            GreetingCard(name = name)
+        itemsIndexed(names) { index, name ->
+            GreetingCard(
+                name = name,
+                expanded = expandedStates[index],
+                onExpandChange = { isExpanded ->
+                    expandedStates = expandedStates.toMutableList().also {
+                        it[index] = isExpanded
+                    }
+                }
+            )
         }
     }
 }
 
 @Composable
-fun GreetingCard(name: String, modifier: Modifier = Modifier) {
-    var expanded by remember { mutableStateOf(false) }
-
-    // 🎯 animamos el padding inferior cuando se expande
+fun GreetingCard(
+    name: String,
+    expanded: Boolean,
+    onExpandChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val extraPadding by animateDpAsState(
         targetValue = if (expanded) 48.dp else 0.dp, label = ""
     )
@@ -64,7 +77,7 @@ fun GreetingCard(name: String, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
-            .animateContentSize() // importante para animar suavemente
+            .animateContentSize()
     ) {
         Row(
             modifier = Modifier
@@ -76,10 +89,10 @@ fun GreetingCard(name: String, modifier: Modifier = Modifier) {
                 text = name,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(bottom = extraPadding) // 👈 aquí se nota la expansión
+                    .padding(bottom = extraPadding)
             )
 
-            ElevatedButton(onClick = { expanded = !expanded }) {
+            ElevatedButton(onClick = { onExpandChange(!expanded) }) {
                 Text(if (expanded) "Show less" else "Show more")
             }
         }
