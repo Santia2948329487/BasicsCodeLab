@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.basicscodelab.ui.theme.BasicsCodeLabTheme
 
 class MainActivity : ComponentActivity() {
@@ -44,7 +45,7 @@ fun MyApp(modifier: Modifier = Modifier) {
 
 @Composable
 fun GreetingList(names: List<String>, modifier: Modifier = Modifier) {
-    // 👇 ahora usamos rememberSaveable para que el estado sobreviva
+    // Estado persistente: cada tarjeta recuerda si está expandida o no
     var expandedStates by rememberSaveable {
         mutableStateOf(List(names.size) { false })
     }
@@ -80,6 +81,7 @@ fun GreetingCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
+            // 🔹 Animación suave al expandir/contraer
             .animateContentSize()
     ) {
         Row(
@@ -90,6 +92,7 @@ fun GreetingCard(
         ) {
             Text(
                 text = name,
+                fontSize = 20.sp,
                 modifier = Modifier
                     .weight(1f)
                     .padding(bottom = extraPadding)
